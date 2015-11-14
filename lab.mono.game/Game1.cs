@@ -54,6 +54,8 @@ namespace lab.mono.game
             // TODO: Unload any non ContentManager content here
         }
 
+
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -61,10 +63,18 @@ namespace lab.mono.game
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            //    Exit();
+            var sizeMove = 5;
+            var state = Keyboard.GetState();
 
-            // TODO: Add your update logic here
+            if (state.IsKeyDown(Keys.Up))
+                position.Y -= sizeMove;
+            else if (state.IsKeyDown(Keys.Down))
+                position.Y += sizeMove;
+
+            if (state.IsKeyDown(Keys.Left))
+                position.X -= sizeMove;
+            else if (state.IsKeyDown(Keys.Right))
+                position.X += sizeMove;
 
             base.Update(gameTime);
         }
