@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace lab.mono.game
 {
@@ -12,8 +13,11 @@ namespace lab.mono.game
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        private Texture2D texture;
-        private Vector2 position;
+        private Vector2 centroTela;
+        private List<ISprite> sprites;
+        private ISprite agulha;
+        private ISprite compasso;
+
 
         public Game1()
         {
@@ -30,7 +34,9 @@ namespace lab.mono.game
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            position = new Vector2(150, 50);
+            this.agulha = new SpriteDefault("agulha");
+            this.compasso = new SpriteDefault("compasso");
+            sprites = new List<ISprite> { compasso, agulha };
             base.Initialize();
         }
 
@@ -42,7 +48,19 @@ namespace lab.mono.game
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            texture = Content.Load<Texture2D>("mario");
+
+            var viewport = graphics.GraphicsDevice.Viewport;
+            centroTela = new Vector2(viewport.Width, viewport.Height) / 2f;
+
+            sprites.ForEach(sprite =>
+            {
+                sprite.OrigemCentralizada = true;
+                sprite.Posicao = centroTela;
+                sprite.LoadContent(Content);
+                sprite.Escala = 0.5f;
+            });
+
+            agulha.Posicao = centroTela + new Vector2(0, 10);
         }
 
         /// <summary>
@@ -63,18 +81,9 @@ namespace lab.mono.game
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            var sizeMove = 5;
-            var state = Keyboard.GetState();
-
-            if (state.IsKeyDown(Keys.Up))
-                position.Y -= sizeMove;
-            else if (state.IsKeyDown(Keys.Down))
-                position.Y += sizeMove;
-
-            if (state.IsKeyDown(Keys.Left))
-                position.X -= sizeMove;
-            else if (state.IsKeyDown(Keys.Right))
-                position.X += sizeMove;
+            var tempoDecorrido = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            agulha.Rotacao += tempoDecorrido;
+            agulha.Rotacao %= MathHelper.TwoPi;
 
             base.Update(gameTime);
         }
@@ -85,12 +94,10 @@ namespace lab.mono.game
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
-            // Color irá alterar a tonalidade do desenho. White mantem o padrao de coloracao original
-            // Varios parametros 
-            spriteBatch.Draw(texture, position, Color.White); 
+            sprites.ForEach(sprite => sprite.Draw(spriteBatch));
             spriteBatch.End();
 
             base.Draw(gameTime);
